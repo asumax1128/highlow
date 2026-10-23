@@ -6,6 +6,7 @@
 
 - [起動方法・構成・機能](README-v1.md)
 - [実装報告と検証結果](REPORT-v1.md)
+- [ポータル作成チャットへの引き継ぎ資料](docs/PORTAL-HANDOFF.md)
 - [Googleスプレッドシートの導入手順](docs/GOOGLE-SETUP.md)
 - [API仕様](docs/API.md)
 - [既存ポータル・ランキング基盤の確認結果](docs/EXISTING-BASE.md)

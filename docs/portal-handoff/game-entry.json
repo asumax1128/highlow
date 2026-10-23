@@ -1,0 +1,54 @@
+{
+  "id": "high-low",
+  "title": "HIGH×LOW",
+  "accent": "#FFB35B",
+  "symbol": "×",
+  "description": "左右の数式を比べて、大きい方をタップ！ 考える時間30秒で、ひらめきと計算力に挑む数学アーケード。3つの難易度と、デイリー・週間・歴代ランキングに対応。",
+  "genre": "数学アーケード／数式比較",
+  "image": null,
+  "logo": "assets/logos/high-low.png",
+  "logoWebp": null,
+  "logoWidth": 2172,
+  "logoHeight": 724,
+  "logoTone": "light",
+  "url": "https://asumax1128.github.io/highlow/",
+  "catchphrase": "ひらめき×30秒",
+  "overview": "左右に並ぶ2つの数式。大きいのはどっち？ HIGH×LOWは、式の値をすばやく見比べて答えるソロ数学ゲームです。EASYは小学校レベルの四則演算で左右の2択、NORMALでは同じ値を選ぶEQUALが加わり、HARDでは分数・平方根・三角関数などの比較に挑戦できます。考える時間は30秒。連続正解で得点を伸ばし、難易度別のデイリー・週間・歴代ランキングで自己ベストを目指しましょう。",
+  "features": [
+    "タップで大きい方を選ぶ直感的な操作。PCの矢印キーにも対応。",
+    "EASY・NORMAL・HARDの3難易度。HARDの数式は分数・平方根などを読みやすく表示。",
+    "考える時間30秒。連続正解でコンボをつなぎ、ハイスコアに挑戦。",
+    "難易度別のデイリー・週間・歴代ランキング。上位100名と自分の順位を確認可能。"
+  ],
+  "beginnerTip": "まずはEASY。左右の式を比べて、大きい方をタップしよう。",
+  "howToPlay": [
+    "EASY・NORMAL・HARDから難易度を選び、PLAYでスタート。",
+    "左の式が大きければLEFT、右の式が大きければRIGHT。同じ値ならEQUALを選びます。EASYは左右の2択です。",
+    "考える時間は30秒。正解を続けてコンボを伸ばしましょう。正誤表示の0.3秒間は時計が止まります。",
+    "ランキングに載せたいときはRANKINGでニックネームを登録。オンラインで試合を完走すると、各期間の最高記録へ自動反映されます。",
+    "PCでは←がLEFT、→がRIGHT、↓がEQUAL。別タブや別アプリへ移ると試合が中断され、その試合はランキングに登録されません。"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/highlow/title.png",
+      "original": "assets/screenshots/highlow/title.png",
+      "width": 390,
+      "height": 844,
+      "caption": "ひらめき×30秒。難易度を選んで、数式比較に挑戦！"
+    },
+    {
+      "src": "assets/screenshots/highlow/easy.png",
+      "original": "assets/screenshots/highlow/easy.png",
+      "width": 390,
+      "height": 844,
+      "caption": "EASYは左右の2択。大きい方をタップしよう。"
+    },
+    {
+      "src": "assets/screenshots/highlow/hard.png",
+      "original": "assets/screenshots/highlow/hard.png",
+      "width": 390,
+      "height": 844,
+      "caption": "HARDでは高校数学の数式を比較。同じ値ならEQUAL！"
+    }
+  ]
+}
