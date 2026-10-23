@@ -13,8 +13,10 @@ with tempfile.TemporaryDirectory(prefix='high-low-google-') as tmp:
    except Exception:time.sleep(.1)
   with sync_playwright() as p:
    browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
-   page=browser.new_page(viewport={'width':390,'height':844},has_touch=True)
-   errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+   # The managed test proxy CA is not in Chromium's certificate store.
+   # This exception is confined to this test context; app/production TLS is unchanged.
+   page=browser.new_page(viewport={'width':390,'height':844},has_touch=True,ignore_https_errors=True)
+   errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.on('requestfailed',lambda r:print('NETWORK:',r.failure));page.on('console',lambda m:print('BROWSER:',m.text) if m.type=='error' else None)
    page.goto(url);page.locator('#play').click();page.wait_for_selector('#left:enabled',timeout=40000)
    mode=page.locator('#online-mode').inner_text();assert mode=='オンライン記録対象',mode
    page.wait_for_timeout(1000);page.locator('#left').click();page.wait_for_selector('#retry',timeout=36000)
