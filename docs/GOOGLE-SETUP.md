@@ -40,3 +40,7 @@ GASには実行時間・同時実行数・スプレッドシート操作の割�
 専用リポジトリは `https://github.com/asumax1128/highlow` です。GASの実デプロイURLが確定したら、Repository Settings → Secrets and variables → Actions → Variablesに **公開設定値** `HIGHLOW_GAS_URL` を設定します（URL自体は秘密情報ではありません）。Settings → PagesのSourceをGitHub Actionsにして、Actionsから `Publish HIGH LOW test build` を手動実行します。URL未設定の場合は公開処理を失敗させ、未接続のランキングを公開しないようにしています。自動で本番公開するpushトリガーは追加していません。
 
 ワークフローが返した実際の公開URLを使って接続テストしてください。推測のGitHub Pages URLを「公開済み」として案内しません。
+
+## 構文エラー「Unexpected token ILLEGAL」が出た場合
+
+旧版にはApps Scriptが受け付けないBigIntリテラルが含まれていました。修正後の `Code.gs` 全体をHIGH×LOW専用プロジェクトへ貼り直してください。修正版はGASでBigIntを使用せず、各乗算が安全整数範囲内であることを確認して厳密に比較します。保存後、未作成の場合のみ `createHighLowStorage` を実行します。作成済みの場合は再実行せず、Webアプリを新バージョンで再デプロイしてください。
