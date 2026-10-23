@@ -1,6 +1,6 @@
 # HIGH×LOW Ver.1.0 リリース候補
 
-Ver.0.1のゲームルールを維持し、オンラインランキングを追加した承認前の実装です。Google Apps Scriptの本番接続・正式公開はまだ行っていません。
+Ver.0.1のゲームルールを維持し、オンラインランキングを追加した承認前の実装です。Google Apps Scriptの実接続と保存・取得テストは完了しています。正式承認はまだ行っていません。
 
 ## 利用する保存先
 
@@ -60,3 +60,5 @@ Node版はHttpOnly / Secure / SameSite=Lax Cookie、GAS版はlocalStorageのラ�
 - `docs/GOOGLE-SETUP.md`：既存ゲームに触れない導入手順。
 
 Nodeサーバーは通常、ローカル検証用の同一オリジンSQLite APIを利用する設定を `/config.js` で返します。設定済みGoogle APIへ接続して検証する場合は `HIGHLOW_USE_GOOGLE=true npm start` を利用します。静的ホスティング版は保存済み `dist/config.js` のGoogle設定を使います。
+
+テスト公開URL： https://asumax1128.github.io/highlow/ （正式承認前）。公開版は専用Googleスプレッドシートへ接続しています。
