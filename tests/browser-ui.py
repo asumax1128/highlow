@@ -13,11 +13,13 @@ with tempfile.TemporaryDirectory(prefix='high-low-ui-') as tmp:
   with sync_playwright() as p:
    browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
    page=browser.new_page(viewport={'width':390,'height':844},has_touch=True)
-   errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.goto(url);page.evaluate('document.fonts.ready')
+   errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.goto(url);page.evaluate('document.fonts.ready');expect(page.locator('.title-logo')).to_have_js_property('naturalWidth',2172)
    for size in [(390,844),(360,740),(320,568),(1366,768),(844,390)]:
     w,h=size;page.set_viewport_size({'width':w,'height':h});page.wait_for_timeout(80)
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),('title overflow',size)
     r=page.locator('#play').bounding_box();assert r['y']+r['height']<=h,('PLAY outside screen',size,r)
+    assert page.locator('.hero-doodles span').all_text_contents()==['＋','÷','＝','√']
+    for symbol in page.locator('.hero-doodles span').all():expect(symbol).to_be_visible()
    page.set_viewport_size({'width':390,'height':844})
    for d in ['EASY','NORMAL','HARD']:
     page.locator('[data-difficulty="'+d+'"]').click()

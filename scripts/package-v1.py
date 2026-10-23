@@ -1,5 +1,5 @@
 from pathlib import Path
-import re,zipfile
+import re,zipfile,base64
 root=Path(__file__).resolve().parents[1]
 parts=[]
 for name in ['engine.js','storage.js','ranking-client.js','formula.js','app.js']:
@@ -8,6 +8,9 @@ for name in ['engine.js','storage.js','ranking-client.js','formula.js','app.js']
  s=re.sub(r'\bexport ', '', s)
  parts.append(s)
 html=(root/'dist/index.html').read_text().replace('<link rel="stylesheet" href="style.css">','<style>'+(root/'dist/style.css').read_text()+'</style>').replace('<script src="config.js"></script>','<script>'+(root/'dist/config.js').read_text()+'</script>').replace('<script type="module" src="app.js"></script>','<script type="module">'+'\n'.join(parts)+'</script>')
+# Keep the approved title image available in the standalone offline bundle.
+logo_data=base64.b64encode((root/'dist/assets/title-logo.png').read_bytes()).decode()
+html=html.replace('src="assets/title-logo.png"','src="data:image/png;base64,'+logo_data+'"')
 (root/'artifacts').mkdir(exist_ok=True)
 (root/'artifacts/HIGH-LOW-v1.0-rc.html').write_text(html)
 with zipfile.ZipFile(root/'artifacts/HIGH-LOW-v1.0-rc.zip','w',zipfile.ZIP_DEFLATED) as archive:
