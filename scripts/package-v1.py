@@ -2,7 +2,7 @@ from pathlib import Path
 import re,zipfile
 root=Path(__file__).resolve().parents[1]
 parts=[]
-for name in ['engine.js','storage.js','ranking-client.js','app.js']:
+for name in ['engine.js','storage.js','ranking-client.js','formula.js','app.js']:
  s=(root/'dist'/name).read_text()
  s=re.sub(r'^import .*?;\n','',s,flags=re.M)
  s=re.sub(r'\bexport ', '', s)

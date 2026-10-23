@@ -62,3 +62,11 @@ Node版はHttpOnly / Secure / SameSite=Lax Cookie、GAS版はlocalStorageのラ�
 Nodeサーバーは通常、ローカル検証用の同一オリジンSQLite APIを利用する設定を `/config.js` で返します。設定済みGoogle APIへ接続して検証する場合は `HIGHLOW_USE_GOOGLE=true npm start` を利用します。静的ホスティング版は保存済み `dist/config.js` のGoogle設定を使います。
 
 テスト公開URL： https://asumax1128.github.io/highlow/ （正式承認前）。公開版は専用Googleスプレッドシートへ接続しています。
+
+## 明るいUIと数式表示
+
+クリーム色の背景・丸みのあるボタンへ変更し、EASYは緑、NORMALはオレンジ、HARDは赤を使います。タイトル・プレイ・リザルト・ランキングで難易度の配色を統一しています。LEFTの青、RIGHTのオレンジ、EQUALの紫という選択肢の識別は維持しています。
+
+問題は埋め込みのDejaVu Math TeX Gyre由来フォントとMathMLで表示します。分数・平方根・指数・対数の底・特殊角の度数記号を構造化し、読み上げ用に元の式も保持します。表示処理は `dist/formula.js` に分離しており、問題生成・値・正解判定には影響しません。フォントの外部配信サービスには接続せず、ライセンスを `dist/MATH-FONT-LICENSE.txt` に同梱しています。
+
+`python3 tests/browser-ui.py` で5画面サイズ・3配色・HARD全30式の表示、専用フォントのロード、見切れなしを確認できます。
