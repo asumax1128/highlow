@@ -1,0 +1,15 @@
+{
+  "name": "high-low",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/*.test.js",
+    "start": "node server/index.js",
+    "start:static": "python3 -m http.server 8080 --directory dist",
+    "build:gas": "python3 scripts/build-apps-script.py"
+  },
+  "version": "1.0.0-rc.1",
+  "engines": {
+    "node": ">=24"
+  }
+}

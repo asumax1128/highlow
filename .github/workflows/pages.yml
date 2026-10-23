@@ -1,0 +1,32 @@
+name: Publish HIGH LOW test build
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: highlow-pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm test
+      - run: node scripts/configure-ranking.mjs
+        env:
+          HIGHLOW_GAS_URL: ${{ vars.HIGHLOW_GAS_URL }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Publish test build
+        id: deploy
+        uses: actions/deploy-pages@v4
