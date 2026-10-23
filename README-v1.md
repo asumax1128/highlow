@@ -58,3 +58,5 @@ Node版はHttpOnly / Secure / SameSite=Lax Cookie、GAS版はlocalStorageのラ�
 - `dist/ranking-client.js`, `dist/config.js`：通信と実際の接続先の設定。
 - `tests/ranking.test.js`：ランキング・API・クライアント・GASのテスト。
 - `docs/GOOGLE-SETUP.md`：既存ゲームに触れない導入手順。
+
+Nodeサーバーは通常、ローカル検証用の同一オリジンSQLite APIを利用する設定を `/config.js` で返します。設定済みGoogle APIへ接続して検証する場合は `HIGHLOW_USE_GOOGLE=true npm start` を利用します。静的ホスティング版は保存済み `dist/config.js` のGoogle設定を使います。

@@ -1,0 +1,8 @@
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const window={};new vm.Script(readFileSync(new URL('../dist/config.js',import.meta.url),'utf8')).runInNewContext({window},{timeout:1000});
+const config=window.HIGHLOW_RANKING_CONFIG;
+if(config?.gas!==true)throw Error('A dedicated Google ranking deployment must be configured before publication.');
+const url=new URL(config.endpoint);if(url.protocol!=='https:'||url.hostname!=='script.google.com'||!url.pathname.endsWith('/exec')||url.username||url.password||url.search||url.hash)throw Error('Invalid Google Apps Script deployment URL.');
+if(process.argv.includes('--probe')){const response=await fetch(url,{signal:AbortSignal.timeout(25000)});if(!response.ok||!response.headers.get('content-type')?.includes('application/json'))throw Error('Ranking API did not return JSON. Check anonymous access and deployment settings.');const data=await response.json();if(data.service!=='HIGH×LOW ranking'||data.version!=='1.0-rc')throw Error('The endpoint is not the expected HIGH LOW ranking service.');const profileResponse=await fetch(url,{method:'POST',headers:{'content-type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'profile',data:{}}),signal:AbortSignal.timeout(25000)});if(!profileResponse.ok||!profileResponse.headers.get('content-type')?.includes('application/json'))throw Error('The ranking profile endpoint is not accessible.');const profile=await profileResponse.json();if(profile.error||typeof profile.token!=='string'||!profile.player)throw Error('Ranking storage is not ready. Run createHighLowStorage and check script permissions.');}
+console.log('HIGH LOW ranking configuration verified.');

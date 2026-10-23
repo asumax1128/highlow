@@ -20,9 +20,11 @@ jobs:
         with:
           node-version: '24'
       - run: npm test
-      - run: node scripts/configure-ranking.mjs
+      - if: ${{ vars.HIGHLOW_GAS_URL != '' }}
+        run: node scripts/configure-ranking.mjs
         env:
           HIGHLOW_GAS_URL: ${{ vars.HIGHLOW_GAS_URL }}
+      - run: node scripts/check-ranking-config.mjs --probe
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
