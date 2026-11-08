@@ -1,4 +1,4 @@
-name: Publish HIGH LOW test build
+name: Publish HIGH LOW
 on:
   workflow_dispatch:
 permissions:
