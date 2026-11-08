@@ -34,7 +34,7 @@ with tempfile.TemporaryDirectory(prefix='high-low-ui-') as tmp:
      if d!='EASY':
       r=page.locator('#equal').bounding_box();assert r['y']+r['height']<=h,('EQUAL outside screen',d,w,h,r)
     page.set_viewport_size({'width':390,'height':844});page.screenshot(path=str(root/f'artifacts/pop-play-{d.lower()}.png'))
-    page.locator('#exit').click();page.locator('#title').click()
+    page.locator('#exit').click();page.locator('#exit').click();page.locator('#title').click()
    # Every shipped HARD expression: MathML, original accessible text, no clipping.
    for w,h in [(390,844),(320,568),(844,390)]:
     page.set_viewport_size({'width':w,'height':h})
