@@ -1,4 +1,7 @@
+import {ENGINE_VERSION} from './engine.js?v=0.2';
 export const NETWORK_ERROR='通信できませんでした。';
+export const LATE_ERROR='時間が経ったため登録できません（試合の終了から送信までに時間がかかりすぎました）。';
+export const RELOAD_ERROR='ゲームが更新されました。ページを再読み込みしてください。';
 const TIMEOUT_ERROR='通信がタイムアウトしました。再試行してください。';
 const apiError=(message,code)=>Object.assign(Error(message),{code});
 export class RankingClient{
@@ -8,24 +11,37 @@ export class RankingClient{
  async identity(){if(this.profile)return this.profile;if(!this.identityRequest)this.identityRequest=this.call('profile').then(p=>this.profile=p).finally(()=>{this.identityRequest=null});return this.identityRequest}
  async nickname(name){this.profile=await this.call('profile',{nickname:name});return this.profile}
  // The whole start (including a still-pending identity) is bounded by startTimeout.
- async start(difficulty){let timer;try{return await Promise.race([(async()=>{await this.identity();return this.call('start',{difficulty},{timeout:this.startTimeout})})(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(apiError(TIMEOUT_ERROR,'TIMEOUT')),this.startTimeout)})])}finally{clearTimeout(timer)}}
+ // Sends this page's engine version and countdown kind; the server refuses a mismatched version (code ENGINE_VERSION).
+ async start(difficulty,countdown='first'){let timer;try{return await Promise.race([(async()=>{await this.identity();return this.call('start',{difficulty,engineVersion:ENGINE_VERSION,countdown},{timeout:this.startTimeout})})(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(apiError(TIMEOUT_ERROR,'TIMEOUT')),this.startTimeout)})])}finally{clearTimeout(timer)}}
  async ranking(difficulty,period){await this.identity();return this.call('ranking',{difficulty,period})}
- submit(runId,game){return this.submitAnswers(runId,game.history.map(a=>({questionId:a.question.id,choice:a.choice,elapsed:a.elapsed})))}
- submitAnswers(runId,answers){return this.call('submit',{runId,completed:true,answers})}
+ submit(runId,game){return this.submitAnswers(runId,game.history.map(a=>({questionId:a.question.id,choice:a.choice,elapsed:a.elapsed})),game.finalElapsed)}
+ // finalElapsed: time the last (unanswered) question was on screen when time ran out.
+ submitAnswers(runId,answers,finalElapsed){return this.call('submit',{runId,completed:true,answers,...(Number.isFinite(finalElapsed)?{finalElapsed}:{})})}
 }
 // Server answers that will never succeed on retry (the run is gone, expired, timed out or already different).
-const FINAL_CODES=new Set(['TIMING_MISMATCH','EXPIRED','RUN_NOT_FOUND','DUPLICATE','INVALID_HISTORY','INVALID_ANSWER','TIME_LIMIT','TOO_EARLY','ENGINE_VERSION','INVALID_REQUEST','OFFLINE']);
+const FINAL_CODES=new Set(['TIMING_MISMATCH','EXPIRED','RUN_NOT_FOUND','DUPLICATE','INVALID_HISTORY','INVALID_ANSWER','TIME_LIMIT','TOO_EARLY','ENGINE_VERSION','INVALID_REQUEST','OFFLINE','TOO_FAST','INCOMPLETE_HISTORY']);
+// The run's acceptance window has passed: explain it plainly instead of the raw server message.
+const LATE_CODES=new Set(['EXPIRED','TIMING_MISMATCH']);
 // Submissions live here, independent of whichever screen is shown, so a failed run can be resent from any screen.
-// status: sending | failed (retryable) | rejected (server refused; can only be dismissed) | done
+// status: sending | retrying (automatic resend scheduled) | failed (retryable by hand) | rejected (server refused; can only be dismissed) | done
+// delays: automatic resends after a retryable failure, e.g. [1000,3000,3000] = up to 3 resends 1 s / 3 s apart. Default: none.
 export class SubmissionQueue{
- constructor(client){this.client=client;this.entries=[];this.listeners=new Set()}
+ constructor(client,{delays=[],wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){this.client=client;this.delays=delays;this.wait=wait;this.entries=[];this.listeners=new Set()}
  subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
  notify(entry){for(const fn of this.listeners){try{fn(entry)}catch{}}}
  get(runId){return this.entries.find(e=>e.runId===runId)||null}
- pending(){return this.entries.filter(e=>e.status==='failed'||e.status==='rejected'||e.status==='sending')}
- add({runId,difficulty,score,answers}){let entry=this.get(runId);if(!entry){entry={runId,difficulty,score,answers,status:'failed',message:'',response:null,attempts:0};this.entries.push(entry)}return this.send(entry)}
- async send(entry){if(entry.status==='sending')return entry.promise;if(entry.status==='done')return entry;entry.status='sending';entry.message='';entry.attempts++;this.notify(entry);
-  entry.promise=(async()=>{try{entry.response=await this.client.submitAnswers(entry.runId,entry.answers);entry.status='done';this.entries=this.entries.filter(e=>e!==entry)}catch(e){entry.status=FINAL_CODES.has(e?.code)?'rejected':'failed';entry.message=e?.message||NETWORK_ERROR}this.notify(entry);return entry})();return entry.promise}
+ pending(){return this.entries.filter(e=>e.status!=='done')}
+ add({runId,difficulty,score,answers,finalElapsed}){let entry=this.get(runId);if(!entry){entry={runId,difficulty,score,answers,finalElapsed,status:'failed',message:'',response:null,attempts:0};this.entries.push(entry)}return this.send(entry)}
+ async send(entry){if(entry.status==='sending'||entry.status==='retrying')return entry.promise;if(entry.status==='done')return entry;
+  entry.promise=(async()=>{for(let attempt=0;;attempt++){entry.status='sending';entry.message='';entry.attempts++;this.notify(entry);
+   try{entry.response=await this.client.submitAnswers(entry.runId,entry.answers,entry.finalElapsed);entry.status='done';this.entries=this.entries.filter(e=>e!==entry);this.notify(entry);return entry}
+   catch(e){const code=e?.code;
+    if(LATE_CODES.has(code)){entry.status='rejected';entry.message=LATE_ERROR}
+    else if(FINAL_CODES.has(code)){entry.status='rejected';entry.message=code==='ENGINE_VERSION'?RELOAD_ERROR:e?.message||NETWORK_ERROR}
+    else if(attempt<this.delays.length&&this.entries.includes(entry)){const delay=this.delays[attempt];entry.status='retrying';entry.message=`${e?.message||NETWORK_ERROR} ${delay/1000}秒後に自動で再送します（${attempt+1}/${this.delays.length}）`;this.notify(entry);await this.wait(delay);if(!this.entries.includes(entry))return entry;continue}
+    else{entry.status='failed';entry.message=e?.message||NETWORK_ERROR}
+    this.notify(entry);return entry}}})();
+  return entry.promise}
  retry(runId){const entry=this.get(runId);return entry?this.send(entry):Promise.resolve(null)}
  async retryAll(){for(const entry of [...this.entries])if(entry.status==='failed')await this.send(entry)}
  dismiss(runId){this.entries=this.entries.filter(e=>e.runId!==runId);this.notify(null)}
