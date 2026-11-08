@@ -20,11 +20,11 @@ html=inline(html,r'<script type="module" src="app\.js(?:\?v=[^"]*)?"></script>',
 logo_data=base64.b64encode((root/'dist/assets/title-logo.png').read_bytes()).decode()
 html=html.replace('src="assets/title-logo.png"','src="data:image/png;base64,'+logo_data+'"')
 (root/'artifacts').mkdir(exist_ok=True)
-(root/'artifacts/HIGH-LOW-v1.0-rc.html').write_text(html)
-with zipfile.ZipFile(root/'artifacts/HIGH-LOW-v1.0-rc.zip','w',zipfile.ZIP_DEFLATED) as archive:
+(root/'artifacts/HIGH-LOW-v1.0.html').write_text(html)
+with zipfile.ZipFile(root/'artifacts/HIGH-LOW-v1.0.zip','w',zipfile.ZIP_DEFLATED) as archive:
  for folder in ['dist','server','apps-script','tests','scripts','docs']:
   for p in (root/folder).rglob('*'):
    if p.is_file() and '__pycache__' not in str(p):archive.write(p,p.relative_to(root))
  for name in ['package.json','README.md','README-v1.md','REPORT-v1.md','FONT-LICENSE.txt','Dockerfile','.env.example']:
   if (root/name).exists():archive.write(root/name,name)
- archive.write(root/'artifacts/HIGH-LOW-v1.0-rc.html','HIGH-LOW-v1.0-rc.html')
+ archive.write(root/'artifacts/HIGH-LOW-v1.0.html','HIGH-LOW-v1.0.html')
