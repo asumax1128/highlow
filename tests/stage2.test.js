@@ -98,7 +98,8 @@ test('unverified tokens share one cached limit and create no limit rows; verifie
   assert.equal(f.repo.list('limits').length,before,'no rows for unverified tokens');
   assert.throws(()=>f.service.handle('ranking',{difficulty:'EASY',period:'daily'},'forged-x','x'),{code:'RATE_LIMIT'},'the 121st unverified request in the minute hits the shared bucket');
   assert.throws(()=>f.service.handle('profile',{},null,'x'),{code:'RATE_LIMIT'},'new identities share the same bucket');
-  f.call('ranking',{difficulty:'EASY',period:'daily'});
+  const beforeRead=f.repo.list('limits').length;f.call('ranking',{difficulty:'EASY',period:'daily'});assert.equal(f.repo.list('limits').length,beforeRead,'stage 3: ranking reads write no limit rows');
+  f.call('start',START('EASY'));
   const rows=f.repo.list('limits');assert(rows.some(r=>r.id.startsWith('requests:')),'verified request is limited per player');assert(rows.every(r=>!/forged|shared|identity/.test(r.id)))}finally{f.repo.close()}
 });
 
@@ -127,8 +128,10 @@ test('submission queue resends automatically (1 s, 3 s, 3 s) and explains expire
  const sent=[];const c=new RankingClient({fetcher:async(url,o)=>{sent.push(JSON.parse(o.body));return new Response('{"accepted":true}')}});await c.submit('r3',{history:[],finalElapsed:30000});assert.equal(sent[0].data.finalElapsed,30000);
 });
 
-test('asset URLs and module imports carry the engine version (?v=)',()=>{
- const v=ENGINE_VERSION.replace(/^high-low-/,'');const read=p=>readFileSync(new URL('../dist/'+p,import.meta.url),'utf8');
- const html=read('index.html');for(const asset of ['style.css','config.js','app.js'])assert(html.includes(`${asset}?v=${v}"`),asset);
- for(const file of ['app.js','ranking-client.js']){const imports=[...read(file).matchAll(/from '\.\/([\w-]+\.js)(\?v=[^']*)?'/g)];assert(imports.length);for(const m of imports)assert.equal(m[2],`?v=${v}`,`${file} → ${m[1]}`)}
+test('asset URLs and module imports carry one asset version (?v=) based on the engine version',()=>{
+ // Stage 3: client-only releases bump a patch suffix (0.2 → 0.2.1) without changing ENGINE_VERSION.
+ const v=ENGINE_VERSION.replace(/^high-low-/,'');const read=p=>readFileSync(new URL('../dist/'+p,import.meta.url),'utf8');const versions=new Set();
+ const html=read('index.html');for(const asset of ['style.css','config.js','app.js']){const m=html.match(new RegExp(asset.replace('.','\\.')+'\\?v=([0-9.]+)"'));assert(m,asset);versions.add(m[1])}
+ for(const file of ['app.js','ranking-client.js']){const imports=[...read(file).matchAll(/from '\.\/([\w-]+\.js)(?:\?v=([^']*))?'/g)];assert(imports.length);for(const m of imports){assert(m[2],`${file} → ${m[1]} has ?v=`);versions.add(m[2])}}
+ assert.equal(versions.size,1,`one asset version everywhere: ${[...versions]}`);const [asset]=versions;assert(asset===v||asset.startsWith(v+'.'),`${asset} is based on engine ${v}`);
 });

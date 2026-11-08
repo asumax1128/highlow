@@ -7,7 +7,15 @@ for name in ['engine.js','storage.js','ranking-client.js','formula.js','app.js']
  s=re.sub(r'^import .*?;\n','',s,flags=re.M)
  s=re.sub(r'\bexport ', '', s)
  parts.append(s)
-html=(root/'dist/index.html').read_text().replace('<link rel="stylesheet" href="style.css">','<style>'+(root/'dist/style.css').read_text()+'</style>').replace('<script src="config.js"></script>','<script>'+(root/'dist/config.js').read_text()+'</script>').replace('<script type="module" src="app.js"></script>','<script type="module">'+'\n'.join(parts)+'</script>')
+# Tags may carry a cache-busting query (?v=…); match them with or without it and fail loudly if one is missing.
+def inline(html,pattern,replacement):
+ out,count=re.subn(pattern,lambda _:replacement,html)
+ if count!=1:raise RuntimeError('Could not inline asset: '+pattern)
+ return out
+html=(root/'dist/index.html').read_text()
+html=inline(html,r'<link rel="stylesheet" href="style\.css(?:\?v=[^"]*)?">','<style>'+(root/'dist/style.css').read_text()+'</style>')
+html=inline(html,r'<script src="config\.js(?:\?v=[^"]*)?"></script>','<script>'+(root/'dist/config.js').read_text()+'</script>')
+html=inline(html,r'<script type="module" src="app\.js(?:\?v=[^"]*)?"></script>','<script type="module">'+'\n'.join(parts)+'</script>')
 # Keep the approved title image available in the standalone offline bundle.
 logo_data=base64.b64encode((root/'dist/assets/title-logo.png').read_bytes()).decode()
 html=html.replace('src="assets/title-logo.png"','src="data:image/png;base64,'+logo_data+'"')

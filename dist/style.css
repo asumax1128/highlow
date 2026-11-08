@@ -74,3 +74,17 @@ html,body{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){.card,.equal{transition:none}.pick-good,.pick-bad,.score-float,.formula-enter,.pulse,.results.enter{animation:none}}
 @media(max-height:500px) and (min-width:600px){#app{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}header:has(+.game){display:none}.game{margin-top:0}.game-top{min-height:44px}.stats{margin:2px 0 4px;gap:8px}.stats>div{padding:3px 5px;display:flex;align-items:baseline;justify-content:center;gap:8px}.stats small{margin:0}.stats strong{font-size:22px}.timer-bar{height:7px}.prompt{display:none}.arena{margin-top:6px}.card{min-height:108px;padding:6px 14px}.formula{font-size:25px}}
 @media(max-height:640px) and (max-width:599px){.results{margin-top:10px}.results h1{margin:8px 0;font-size:22px}.interrupted,.save-note{margin:6px 0}.final-score{font-size:56px;line-height:1.1}.record{margin:6px 0;min-height:20px}.result-grid{padding:10px 8px;gap:8px 6px;margin-bottom:10px}.result-grid b{font-size:19px}.online-result{margin:8px 0}.result-actions{gap:10px}.results .retry{min-height:56px;font-size:20px}.result-sub .secondary{min-height:44px}}
+/* Stage 3: settings screen and hidden names on the board. */
+.settings-link{display:block;margin:12px auto 0;min-height:44px;font-size:12px;font-weight:800;color:#536278}
+.settings-card{padding:17px;background:#fff;border:1px solid #e1e5e9;border-radius:18px;margin:16px 0}
+.settings-card h2{margin:0 0 10px;font-size:15px;font-weight:900;color:var(--ink)}
+.switch-row{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;font-weight:800}
+.switch-row input{width:24px;height:24px;accent-color:var(--accent-dark)}
+.settings-card .secondary{min-height:44px;font-size:14px}
+.code-box{margin-top:10px;display:grid;gap:8px}
+.code-box[hidden]{display:none}
+.code-box textarea{width:100%;font:13px/1.5 ui-monospace,Menlo,monospace;border:2px solid #d3dce5;border-radius:10px;padding:8px;color:var(--ink);background:#f8fafc;word-break:break-all;resize:none}
+.restore-label{display:block;margin-top:16px;font-size:12px;font-weight:800;color:#59677d}
+.settings-status{font-size:12px;line-height:1.8;color:var(--accent-dark);min-height:1.8em;margin:6px 0 0}
+.storage-notice{background:#fff6e6;border:1px solid #f0c27a;border-radius:10px;padding:8px 10px;color:#7a4a0c}
+.ranking-table .is-hidden td:nth-child(2){color:#8a94a3;font-style:italic}
