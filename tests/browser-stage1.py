@@ -86,9 +86,9 @@ with tempfile.TemporaryDirectory(prefix='high-low-stage1-') as tmp:
             assert state['versus'] == {'LEFT': '＞', 'RIGHT': '＜', 'EQUAL': '＝'}[correct], state
             assert '±0' in state['feedback'] and '−100' not in state['feedback'] and state['float'] == '±0', state
             assert state['score'] == '0' and state['noteShown'] and state['note'].startswith('正解：LEFT'), state
-            # Feedback lock ends after ~300 ms but the answer note stays for about a second, without moving the layout.
+            # Feedback lock ends (500 ms after a miss) but the answer note stays for about a second, without moving the layout.
             zone = page.locator('.feedback-zone').bounding_box()
-            page.wait_for_timeout(450)
+            page.wait_for_timeout(700)  # miss lock 500 ms + 150 ms minimum answer time (engine 0.2)
             after = page.evaluate('''({feedback:document.querySelector('#feedback').textContent,versus:document.querySelector('#versus').textContent,
               note:document.querySelector('#answer-note').classList.contains('show'),enabled:!document.querySelector('#left').disabled})''')
             assert after == {'feedback': '', 'versus': 'VS', 'note': True, 'enabled': True}, after
@@ -179,8 +179,10 @@ with tempfile.TemporaryDirectory(prefix='high-low-stage1-') as tmp:
                     route.abort()
                 else:
                     route.continue_()
+            # The quicker engine-0.2 flow makes this script exceed 6 starts/min for one player; continue as a fresh player.
+            page.context.clear_cookies(); page.reload(); expect(page.locator('#play')).to_be_visible()
             page.route('**/api/ranking', drop_submit)
-            page.locator('#title').click(); page.locator('#play').click(); page.wait_for_selector('#left:enabled', timeout=8000)
+            page.locator('#play').click(); page.wait_for_selector('#left:enabled', timeout=8000)
             expect(page.locator('#online-mode')).to_have_text('オンライン記録対象')
             for _ in range(3):
                 page.wait_for_selector('#left:enabled'); page.locator('#' + answer_of(page).lower()).click()
@@ -190,8 +192,10 @@ with tempfile.TemporaryDirectory(prefix='high-low-stage1-') as tmp:
             starts_before = sent.count('start')
             page.wait_for_selector('#retry', timeout=10000)
             expect(page.locator('#online-result')).to_contain_text('通信できませんでした')
-            expect(page.locator('#online-result button')).to_have_text('再送信')
-            page.wait_for_timeout(300); assert sent.count('start') == starts_before + 1  # next run prefetched
+            expect(page.locator('#online-result')).to_contain_text('秒後に自動で再送します')  # engine 0.2: 3 automatic resends (1 s / 3 s / 3 s)
+            expect(page.locator('#online-result button')).to_have_text('再送信', timeout=20000)
+            assert sent.count('submit') >= 4, sent.count('submit')
+            assert sent.count('start') == starts_before + 1  # next run prefetched
             page.wait_for_timeout(300); page.locator('#title').click()
             expect(page.locator('#outbox')).to_be_visible(); expect(page.locator('#outbox')).to_contain_text('NORMAL')
             page.locator('#ranking').click(); expect(page.locator('#outbox')).to_be_visible()
