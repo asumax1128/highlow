@@ -54,13 +54,13 @@ with tempfile.TemporaryDirectory(prefix='high-low-browser-') as tmp:
      expect(page.locator('#rank-rows tr')).to_have_count(1)
      page.locator('#rank-title').click()
     else:
-     page.locator('#exit').click();assert '記録は保存されません' in page.locator('body').inner_text()
+     page.locator('#exit').click();page.locator('#exit').click();assert '記録は保存されません' in page.locator('body').inner_text()
      page.locator('#retry').click();assert page.locator('#score').inner_text()=='0'
-     page.locator('#exit').click();page.locator('#title').click()
+     page.locator('#exit').click();page.locator('#exit').click();page.locator('#title').click()
    # Simulate unreachable API: leaderboard error is visible; game stays playable locally.
    page.route('**/api/ranking',lambda route:route.abort())
    page.locator('#ranking').click();expect(page.locator('#rank-status')).not_to_contain_text('読み込んでいます')
-   page.locator('#rank-title').click();page.locator('#play').click();page.wait_for_selector('#left:enabled',timeout=8000)
+   page.locator('#rank-title').click();page.locator('[data-difficulty="EASY"]').click();page.locator('#play').click();page.wait_for_selector('#left:enabled',timeout=8000)
    assert 'ランキング対象外' in page.locator('#online-mode').inner_text()
    assert not errors,errors
    print(json.dumps({'result':'PASS','sizes':5,'difficulties':3,'fullMatch':True,'rankingSavedAndRead':True,'networkFailureFallback':True,'errors':errors}))
