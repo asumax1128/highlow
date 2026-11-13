@@ -151,8 +151,8 @@ with tempfile.TemporaryDirectory(prefix='high-low-stage1-') as tmp:
             # --- Network failure wording.
             page.route('**/api/ranking', lambda route: route.abort())
             page.wait_for_timeout(600); page.locator('#title').click(); page.locator('#ranking').click()
-            expect(page.locator('#rank-status')).to_contain_text('通信できませんでした')
-            assert 'Failed' not in page.locator('#rank-status').inner_text()
+            expect(page.locator('#rank-status-NORMAL')).to_contain_text('通信できませんでした')
+            assert 'Failed' not in page.locator('#rank-status-NORMAL').inner_text()
             page.locator('#rank-title').click(); page.locator('[data-difficulty="HARD"]').click()  # discard the prefetched run
             page.locator('#play').click(); page.wait_for_selector('#left:enabled', timeout=8000)
             expect(page.locator('#online-mode')).to_contain_text('通信できませんでした')

@@ -26,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix='high-low-stage2-') as tmp:
             assets = []; page.on('request', lambda r: assets.append(r.url.split('/')[-1]))
             bodies = []; page.on('request', lambda r: bodies.append(json.loads(r.post_data)) if r.url.endswith('/api/ranking') and r.post_data else None)
             page.goto(url); expect(page.locator('#play')).to_be_visible()
-            for name in ['style.css?v=0.2.2', 'config.js?v=0.2.2', 'app.js?v=0.2.2', 'engine.js?v=0.2.2', 'ranking-client.js?v=0.2.2']:  # stage 3: asset version 0.2.2 (engine still 0.2)
+            for name in ['style.css?v=0.2.3', 'config.js?v=0.2.3', 'app.js?v=0.2.3', 'engine.js?v=0.2.3', 'ranking-client.js?v=0.2.3']:  # stage 3: asset version 0.2.3 (engine still 0.2)
                 assert name in assets, (name, assets)
 
             # --- Version mismatch: the start is stopped with a reload prompt, no game begins.

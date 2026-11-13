@@ -7,8 +7,8 @@ with sync_playwright() as p:
  page=browser.new_page(viewport={'width':390,'height':844},has_touch=True,ignore_https_errors=True)
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('https://asumax1128.github.io/highlow/',wait_until='networkidle')
- page.locator('#ranking').click();expect(page.locator('#rank-status')).not_to_contain_text('読み込んでいます',timeout=35000)
- text=page.locator('#rank-status').inner_text();assert '上位100' in text or 'まだ記録がありません' in text,text
+ page.locator('#ranking').click();expect(page.locator('#rank-status-NORMAL')).not_to_contain_text('読み込んでいます',timeout=35000)
+ text=page.locator('#rank-status-NORMAL').inner_text();assert '上位30' in text or 'まだ記録がありません' in text,text
  page.screenshot(path='/workspace/sites/high-low/artifacts/published-ranking-mobile.png')
  page.locator('#rank-title').click();page.locator('#play').click();page.wait_for_selector('#left:enabled',timeout=35000)
  assert page.locator('#online-mode').inner_text()=='オンライン記録対象'
