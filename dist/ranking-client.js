@@ -1,4 +1,4 @@
-import {ENGINE_VERSION} from './engine.js?v=0.2.3';
+import {ENGINE_VERSION} from './engine.js?v=0.2.4';
 export const NETWORK_ERROR='通信できませんでした。';
 export const LATE_ERROR='時間が経ったため登録できません（試合の終了から送信までに時間がかかりすぎました）。';
 export const RELOAD_ERROR='ゲームが更新されました。ページを再読み込みしてください。';
