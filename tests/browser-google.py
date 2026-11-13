@@ -21,8 +21,8 @@ with tempfile.TemporaryDirectory(prefix='high-low-google-') as tmp:
    mode=page.locator('#online-mode').inner_text();assert mode=='オンライン記録対象',mode
    page.wait_for_timeout(1000);page.locator('#left').click();page.wait_for_selector('#retry',timeout=36000)
    expect(page.locator('#online-result')).to_contain_text('記録を保存しました',timeout=25000)
-   page.locator('#result-ranking').click();expect(page.locator('#rank-status')).not_to_contain_text('読み込んでいます',timeout=25000)
-   text=page.locator('#rank-status').inner_text();assert '上位100' in text or 'まだ記録がありません' in text,text
+   page.locator('#result-ranking').click();expect(page.locator('#rank-status-NORMAL')).not_to_contain_text('読み込んでいます',timeout=25000)
+   text=page.locator('#rank-status-NORMAL').inner_text();assert '上位30' in text or 'まだ記録がありません' in text,text
    assert not errors,errors
    print(json.dumps({'result':'PASS','liveGoogleProfileAndRun':True,'browserCors':True,'fullMatchAndServerReplay':True,'liveSheetsSaved':True,'leaderboardRead':True,'testIdentityHidden':True,'errors':errors}))
    browser.close()
